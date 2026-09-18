@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Asistencia QR">
+<meta name="theme-color" content="#2E4634">
+<title>Registro de Asistencia · QR</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+
+  :root {
+    --paper: #FBF8F1;
+    --paper-alt: #F1EADA;
+    --ink: #202B1E;
+    --ink-soft: #5C6355;
+    --cover: #2E4634;
+    --cover-dark: #1F3024;
+    --accent: #C97D2B;
+    --accent-soft: #F0DAB8;
+    --rule: #CDC2A4;
+    --present: #3C7A52;
+    --late: #B4841C;
+    --absent: #B14536;
+    --card-bg: #FFFFFF;
+    --shadow: rgba(32,43,30,0.10);
+    --focus: #2E4634;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #171D16;
+      --paper-alt: #1E2620;
+      --ink: #ECE7D8;
+      --ink-soft: #A9B09E;
+      --cover: #46684F;
+      --cover-dark: #304734;
+      --accent: #E3A257;
+      --accent-soft: #3B331F;
+      --rule: #3A4238;
+      --present: #6BB587;
+      --late: #E0AE4C;
+      --absent: #E0806F;
+      --card-bg: #1F2620;
+      --shadow: rgba(0,0,0,0.45);
+      --focus: #9FC2A4;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #171D16;
+    --paper-alt: #1E2620;
+    --ink: #ECE7D8;
+    --ink-soft: #A9B09E;
+    --cover: #46684F;
+    --cover-dark: #304734;
+    --accent: #E3A257;
+    --accent-soft: #3B331F;
+    --rule: #3A4238;
+    --present: #6BB587;
+    --late: #E0AE4C;
+    --absent: #E0806F;
+    --card-bg: #1F2620;
+    --shadow: rgba(0,0,0,0.45);
+    --focus: #9FC2A4;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { padding: 28px 18px 60px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  header.top { margin-bottom: 22px; }
+  header.top .mark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px; border-radius: 9px;
+    background: var(--cover); color: var(--paper-alt);
+    font-size: 20px; margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: clamp(1.6rem, 4vw, 2.15rem);
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  header.top p {
+    margin: 0; color: var(--ink-soft); font-size: 0.95rem; max-width: 54ch;
+  }
+
+  nav.tabs {
+    display: flex; gap: 2px; margin-top: 24px; border-bottom: 2px solid var(--cover);
+    overflow-x: auto;
+  }
+  nav.tabs button {
+    font-family: 'IBM Plex Sans', sans-serif; font-weight: 500; font-size: 0.92rem;
+    background: var(--paper-alt); color: var(--ink-soft);
+    border: none; padding: 10px 18px; border-radius: 8px 8px 0 0;
+    cursor: pointer; white-space: nowrap; position: relative; top: 2px;
+    transition: background .15s, color .15s;
+  }
+  nav.tabs button.active {
+    background: var(--cover); color: #fff;
+  }
+  nav.tabs button:not(.active):hover { background: var(--accent-soft); color: var(--ink); }
+
+  .panel {
+    background: var(--card-bg); border: 1px solid var(--rule);
+    border-top: none; border-radius: 0 0 12px 12px;
+    padding: 26px clamp(16px, 4vw, 32px) 30px;
+    box-shadow: 0 8px 24px var(--shadow);
+  }
+  .panel[hidden] { display: none; }
+
+  h2 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 600;
+    font-size: 1.25rem; margin: 0 0 4px;
+  }
+  .subtext { color: var(--ink-soft); font-size: 0.88rem; margin: 0 0 20px; max-width: 60ch; }
+
+  label { font-size: 0.82rem; font-weight: 500; color: var(--ink-soft); display: block; margin-bottom: 5px; }
+  input[type=text], input[type=date], input[type=time], select {
+    width: 100%; padding: 10px 12px; border-radius: 8px;
+    border: 1.5px solid var(--rule); background: var(--paper);
+    color: var(--ink); font-family: inherit; font-size: 0.95rem;
+  }
+  input:focus, select:focus, button:focus-visible {
+    outline: 2px solid var(--focus); outline-offset: 1px;
+  }
+
+  .btn {
+    font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; font-size: 0.9rem;
+    padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer;
+    background: var(--cover); color: #fff; transition: background .15s, transform .1s;
+  }
+  .btn:hover { background: var(--cover-dark); }
+  .btn:active { transform: scale(0.98); }
+  .btn.secondary { background: transparent; color: var(--cover); border: 1.5px solid var(--cover); }
+  .btn.secondary:hover { background: var(--accent-soft); }
+  .btn.danger { background: transparent; color: var(--absent); }
+  .btn.danger:hover { background: var(--accent-soft); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .row > div { flex: 1; min-width: 140px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 0.92rem; }
+  thead th {
+    text-align: left; font-weight: 500; color: var(--ink-soft); font-size: 0.78rem;
+    padding: 0 10px 8px; border-bottom: 2px solid var(--cover);
+  }
+  tbody tr { border-bottom: 1px dashed var(--rule); }
+  tbody td { padding: 10px 10px; vertical-align: middle; }
+  tbody tr:last-child { border-bottom: none; }
+  .empty-row td { text-align: center; color: var(--ink-soft); padding: 26px 0; font-style: italic; }
+
+  .qr-thumb { width: 46px; height: 46px; border-radius: 6px; border: 1px solid var(--rule); background: #fff; padding: 2px; }
+  .code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; color: var(--ink-soft);
+    background: var(--paper-alt); padding: 2px 6px; border-radius: 5px;
+  }
+  .tag {
+    display: inline-block; font-size: 0.76rem; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+  }
+  .tag.presente { background: color-mix(in srgb, var(--present) 18%, transparent); color: var(--present); }
+  .tag.tardanza { background: color-mix(in srgb, var(--late) 20%, transparent); color: var(--late); }
+  .tag.falta { background: color-mix(in srgb, var(--absent) 18%, transparent); color: var(--absent); }
+
+  .icon-btn {
+    background: none; border: none; cursor: pointer; color: var(--ink-soft);
+    font-size: 0.85rem; padding: 4px 8px; border-radius: 6px;
+  }
+  .icon-btn:hover { background: var(--accent-soft); color: var(--absent); }
+
+  /* Escanear */
+  .scan-grid { display: grid; grid-template-columns: 1fr; gap: 22px; }
+  @media (min-width: 640px) { .scan-grid { grid-template-columns: 300px 1fr; } }
+  .camera-box {
+    position: relative; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden;
+    background: var(--cover-dark); border: 3px solid var(--cover);
+  }
+  .camera-box video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .camera-box .frame {
+    position: absolute; inset: 14%; border: 2px dashed rgba(255,255,255,0.55); border-radius: 12px;
+    pointer-events: none;
+  }
+  .camera-box .flash {
+    position: absolute; inset: 0; background: var(--present); opacity: 0; pointer-events: none;
+    transition: opacity .12s;
+  }
+  .camera-box .flash.on { opacity: 0.55; }
+  .camera-box .cam-msg {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: #EDE7D8; font-size: 0.85rem; text-align: center; padding: 16px; line-height: 1.4;
+  }
+
+  .status-banner {
+    border-radius: 10px; padding: 12px 16px; font-size: 0.92rem; font-weight: 500;
+    margin-bottom: 16px; border: 1.5px solid var(--rule); background: var(--paper-alt); color: var(--ink-soft);
+    min-height: 20px;
+  }
+  .status-banner.ok { border-color: var(--present); color: var(--present); background: color-mix(in srgb, var(--present) 10%, var(--paper-alt)); }
+  .status-banner.warn { border-color: var(--late); color: var(--late); background: color-mix(in srgb, var(--late) 12%, var(--paper-alt)); }
+  .status-banner.err { border-color: var(--absent); color: var(--absent); background: color-mix(in srgb, var(--absent) 10%, var(--paper-alt)); }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 18px 0 6px; }
+  .stat {
+    border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; background: var(--paper-alt);
+  }
+  .stat .n { font-family: 'Fraunces', serif; font-size: 1.7rem; font-weight: 600; display: block; }
+  .stat .l { font-size: 0.78rem; color: var(--ink-soft); }
+  .stat.presente .n { color: var(--present); }
+  .stat.tardanza .n { color: var(--late); }
+  .stat.falta .n { color: var(--absent); }
+
+  .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 4px; }
+
+  .print-sheet { display: none; }
+  @media print {
+    body * { visibility: hidden; }
+    .print-overlay, .print-overlay * { visibility: visible; }
+    .no-print { display: none !important; }
+    .print-overlay { position: absolute; top: 0; left: 0; width: 100%; background: #fff; padding: 0; }
+    .card-print {
+      display: inline-block; width: 220px; margin: 10px; padding: 14px; border: 1px dashed #999;
+      text-align: center; font-family: 'IBM Plex Sans', sans-serif; page-break-inside: avoid;
+    }
+    .card-print img { width: 140px; height: 140px; }
+    .card-print .nm { font-weight: 600; margin-top: 6px; }
+    .card-print .cd { font-family: monospace; font-size: 0.75rem; color: #555; }
+  }
+
+  footer.note { margin-top: 18px; font-size: 0.78rem; color: var(--ink-soft); text-align: center; }
+
+  details#manage-lists { border: 1px solid var(--rule); border-radius: 10px; padding: 10px 14px; background: var(--paper-alt); }
+  details#manage-lists[open] { padding-bottom: 16px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem;
+    background: var(--card-bg); border: 1px solid var(--rule); border-radius: 20px; padding: 4px 6px 4px 12px;
+  }
+  .chip button {
+    background: none; border: none; cursor: pointer; color: var(--ink-soft); font-size: 0.9rem;
+    line-height: 1; padding: 2px 4px; border-radius: 50%;
+  }
+  .chip button:hover { color: var(--absent); background: var(--accent-soft); }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(12px);
+    background: var(--cover); color: #fff; padding: 12px 20px; border-radius: 10px;
+    font-size: 0.88rem; font-weight: 500; box-shadow: 0 10px 26px var(--shadow);
+    opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease;
+    z-index: 10000; max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.warn { background: var(--late); color: #2b2109; }
+  #toast.err { background: var(--absent); }
+
+  .print-overlay { position: fixed; inset: 0; background: var(--paper); z-index: 9999; overflow: auto; padding: 22px; }
+  .print-overlay[hidden] { display: none; }
+  .print-toolbar {
+    display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid var(--cover);
+  }
+  .print-toolbar p { margin: 0; font-size: 0.9rem; color: var(--ink-soft); max-width: 62ch; }
+  .icon-btn.confirm-pending { background: var(--absent); color: #fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="mark">🏫</div>
+    <h1>Registro de Asistencia</h1>
+    <p>Genera un código QR por estudiante, escanéalo al entrar a clase y lleva el control de presentes, tardanzas y faltas — todo en este dispositivo.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="estudiantes">Estudiantes</button>
+    <button class="tab-btn" data-tab="escanear">Escanear</button>
+    <button class="tab-btn" data-tab="registro">Registro</button>
+  </nav>
+
+  <!-- ESTUDIANTES -->
+  <section class="panel" id="panel-estudiantes">
+    <h2>Estudiantes</h2>
+    <p class="subtext">Cada estudiante recibe un código QR único. Imprímelo en un carnet o compártelo para que lo muestren al escanear.</p>
+
+    <form id="form-add-student" class="row" style="margin-bottom: 6px;">
+      <div>
+        <label for="in-name">Nombre completo</label>
+        <input type="text" id="in-name" placeholder="Ej. María Torres" required>
+      </div>
+      <div style="max-width: 200px;">
+        <label for="in-grado">Grado</label>
+        <select id="in-grado" required></select>
+      </div>
+      <div style="max-width: 140px;">
+        <label for="in-seccion">Sección</label>
+        <select id="in-seccion" required></select>
+      </div>
+      <div style="flex: 0 0 auto;">
+        <button type="submit" class="btn">Agregar estudiante</button>
+      </div>
+    </form>
+
+    <details id="manage-lists" style="margin: 14px 0 4px;">
+      <summary style="cursor:pointer; font-size:0.86rem; color: var(--ink-soft); font-weight: 500;">Gestionar lista de grados y secciones</summary>
+      <div class="row" style="margin-top: 14px;">
+        <div>
+          <label>Grados disponibles</label>
+          <div id="list-grados" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;"></div>
+          <form id="form-add-grado" class="row" style="align-items:center;">
+            <div><input type="text" id="in-new-grado" placeholder="Ej. 6° Primaria"></div>
+            <div style="flex:0 0 auto;"><button class="btn secondary" type="submit">Agregar grado</button></div>
+          </form>
+        </div>
+        <div>
+          <label>Secciones disponibles</label>
+          <div id="list-secciones" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;"></div>
+          <form id="form-add-seccion" class="row" style="align-items:center;">
+            <div><input type="text" id="in-new-seccion" placeholder="Ej. F" maxlength="12"></div>
+            <div style="flex:0 0 auto;"><button class="btn secondary" type="submit">Agregar sección</button></div>
+          </form>
+        </div>
+      </div>
+    </details>
+
+    <div class="toolbar" style="margin-top: 18px;">
+      <span class="subtext" style="margin:0;" id="student-count">0 estudiantes registrados</span>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <select id="filter-grado" style="min-width:160px;"><option value="">Todos los grados</option></select>
+        <button class="btn secondary" id="btn-print-all" type="button">Imprimir todos los carnets</button>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>QR</th><th>Nombre</th><th>Grado</th><th>Código</th><th></th></tr>
+      </thead>
+      <tbody id="students-tbody">
+        <tr class="empty-row"><td colspan="5">Aún no agregas estudiantes. Usa el formulario de arriba.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ESCANEAR -->
+  <section class="panel" id="panel-escanear" hidden>
+    <h2>Escanear asistencia</h2>
+    <p class="subtext">Apunta la cámara al código QR del estudiante. Si un estudiante llega después de la hora límite, se marcará como tardanza automáticamente.</p>
+
+    <div class="row" style="margin-bottom: 18px;">
+      <div style="max-width: 200px;">
+        <label for="in-cutoff">Hora límite (tardanza después de)</label>
+        <input type="time" id="in-cutoff" value="08:00">
+      </div>
+      <div style="max-width: 200px;">
+        <label for="in-date-scan">Fecha de registro</label>
+        <input type="date" id="in-date-scan">
+      </div>
+    </div>
+
+    <div class="scan-grid">
+      <div>
+        <div class="camera-box" id="camera-box">
+          <video id="video" playsinline muted></video>
+          <div class="frame"></div>
+          <div class="flash" id="flash"></div>
+          <div class="cam-msg" id="cam-msg">
+            <div>
+              <button class="btn" id="btn-activar-camara" type="button">Activar cámara</button>
+              <div id="cam-msg-text" style="margin-top:10px; font-size:0.82rem; opacity:0.85;"></div>
+            </div>
+          </div>
+        </div>
+        <button class="icon-btn" id="btn-switch-camera" type="button" style="margin-top:8px; display:none;">Cambiar de cámara</button>
+      </div>
+
+      <div>
+        <div class="status-banner" id="scan-status">Esperando escaneo…</div>
+
+        <label for="in-manual">Código manual (si la cámara no está disponible)</label>
+        <form id="form-manual" class="row">
+          <div><input type="text" id="in-manual" placeholder="Ej. STU-A1B2C3" autocomplete="off"></div>
+          <div style="flex: 0 0 auto;"><button class="btn secondary" type="submit">Registrar</button></div>
+        </form>
+
+        <p class="subtext" style="margin-top:16px;">Últimos registros de hoy</p>
+        <table>
+          <thead><tr><th>Hora</th><th>Nombre</th><th>Estado</th></tr></thead>
+          <tbody id="recent-tbody">
+            <tr class="empty-row"><td colspan="3">Sin registros todavía.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- REGISTRO -->
+  <section class="panel" id="panel-registro" hidden>
+    <h2>Registro de asistencia</h2>
+    <p class="subtext">Consulta quién asistió, llegó tarde o faltó en una fecha específica.</p>
+
+    <div class="row">
+      <div style="max-width: 220px;">
+        <label for="in-date-view">Fecha</label>
+        <input type="date" id="in-date-view">
+      </div>
+      <div style="flex: 0 0 auto; margin-left: auto;">
+        <button class="btn secondary" id="btn-export" type="button">Exportar CSV</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat presente"><span class="n" id="stat-presente">0</span><span class="l">Presentes</span></div>
+      <div class="stat tardanza"><span class="n" id="stat-tardanza">0</span><span class="l">Tardanzas</span></div>
+      <div class="stat falta"><span class="n" id="stat-falta">0</span><span class="l">Faltas</span></div>
+    </div>
+
+    <table>
+      <thead><tr><th>Nombre</th><th>Grado</th><th>Estado</th><th>Hora</th></tr></thead>
+      <tbody id="registro-tbody">
+        <tr class="empty-row"><td colspan="4">No hay estudiantes registrados.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer class="note">Los datos se guardan solo en este navegador/dispositivo.</footer>
+</div>
+
+<div class="print-overlay" id="print-overlay" hidden>
+  <div class="print-toolbar no-print">
+    <p>Vista de impresión — pulsa <strong>Ctrl+P</strong> (Windows) o <strong>Cmd+P</strong> (Mac) para imprimir, luego cierra esta vista.</p>
+    <button class="btn secondary no-print" id="btn-close-print" type="button">Cerrar</button>
+  </div>
+  <div id="print-sheet"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var STORE_STUDENTS = "asistencia_qr_students_v1";
+  var STORE_RECORDS = "asistencia_qr_records_v1";
+  var STORE_GRADOS = "asistencia_qr_grados_v1";
+  var STORE_SECCIONES = "asistencia_qr_secciones_v1";
+
+  var DEFAULT_GRADOS = ["1° Primaria","2° Primaria","3° Primaria","4° Primaria","5° Primaria","6° Primaria",
+    "1° Secundaria","2° Secundaria","3° Secundaria","4° Secundaria","5° Secundaria"];
+  var DEFAULT_SECCIONES = ["A","B","C","D"];
+
+  var state = { students: [], records: [], grados: [], secciones: [] };
+
+  function safeLoad(key, fallback){
+    try {
+      var raw = localStorage.getItem(key);
+      if (!raw) return fallback;
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : fallback;
+    } catch(e){ return fallback; }
+  }
+  function safeSave(key, value){
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch(e){ /* ignore quota/errors */ }
+  }
+
+  state.students = safeLoad(STORE_STUDENTS, []);
+  state.records = safeLoad(STORE_RECORDS, []);
+  state.grados = safeLoad(STORE_GRADOS, DEFAULT_GRADOS.slice());
+  state.secciones = safeLoad(STORE_SECCIONES, DEFAULT_SECCIONES.slice());
+
+  function saveStudents(){ safeSave(STORE_STUDENTS, state.students); }
+  function saveRecords(){ safeSave(STORE_RECORDS, state.records); }
+  function saveGrados(){ safeSave(STORE_GRADOS, state.grados); }
+  function saveSecciones(){ safeSave(STORE_SECCIONES, state.secciones); }
+
+  function genCode(){
+    var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    var s = "";
+    for (var i=0;i<6;i++) s += chars[Math.floor(Math.random()*chars.length)];
+    return "STU-" + s;
+  }
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+  function timeStr(){
+    var d = new Date();
+    return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+  }
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  /* Aviso flotante: reemplaza alert()/confirm(), que muchas vistas de artefactos bloquean en silencio. */
+  var toastEl = document.createElement("div");
+  toastEl.id = "toast";
+  document.body.appendChild(toastEl);
+  var toastTimer = null;
+  function showToast(msg, kind){
+    toastEl.textContent = msg;
+    toastEl.className = kind || "";
+    toastEl.classList.remove("show");
+    void toastEl.offsetWidth; // reinicia la transición si ya estaba visible
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 3200);
+  }
+
+  /* ---------- Tabs ---------- */
+  var tabButtons = document.querySelectorAll(".tab-btn");
+  var panels = {
+    estudiantes: document.getElementById("panel-estudiantes"),
+    escanear: document.getElementById("panel-escanear"),
+    registro: document.getElementById("panel-registro")
+  };
+  tabButtons.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      tabButtons.forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      Object.keys(panels).forEach(function(k){ panels[k].hidden = true; });
+      panels[btn.dataset.tab].hidden = false;
+      if (btn.dataset.tab === "escanear") enterScanTab();
+      else stopCamera();
+      if (btn.dataset.tab === "registro") renderRegistro();
+    });
+  });
+
+  /* ---------- Estudiantes ---------- */
+  var tbody = document.getElementById("students-tbody");
+  var studentCount = document.getElementById("student-count");
+  var qrCache = {}; // code -> dataURL
+  var gradoSelect = document.getElementById("in-grado");
+  var seccionSelect = document.getElementById("in-seccion");
+  var filterGrado = document.getElementById("filter-grado");
+  var listGradosEl = document.getElementById("list-grados");
+  var listSeccionesEl = document.getElementById("list-secciones");
+
+  function fillSelect(sel, items, keepValue){
+    var prev = keepValue ? sel.value : null;
+    sel.innerHTML = "";
+    items.forEach(function(item){
+      var opt = document.createElement("option");
+      opt.value = item; opt.textContent = item;
+      sel.appendChild(opt);
+    });
+    if (prev && items.indexOf(prev) !== -1) sel.value = prev;
+  }
+
+  function renderGradoSeccionSelects(){
+    fillSelect(gradoSelect, state.grados, true);
+    fillSelect(seccionSelect, state.secciones, true);
+  }
+
+  function renderManageLists(){
+    listGradosEl.innerHTML = "";
+    state.grados.forEach(function(g){
+      var chip = document.createElement("span");
+      chip.className = "chip";
+      chip.innerHTML = escapeHtml(g) + ' <button type="button" data-rm-grado="' + escapeHtml(g) + '" title="Quitar">×</button>';
+      listGradosEl.appendChild(chip);
+    });
+    listSeccionesEl.innerHTML = "";
+    state.secciones.forEach(function(s){
+      var chip = document.createElement("span");
+      chip.className = "chip";
+      chip.innerHTML = escapeHtml(s) + ' <button type="button" data-rm-seccion="' + escapeHtml(s) + '" title="Quitar">×</button>';
+      listSeccionesEl.appendChild(chip);
+    });
+  }
+
+  document.getElementById("form-add-grado").addEventListener("submit", function(e){
+    e.preventDefault();
+    var input = document.getElementById("in-new-grado");
+    var val = input.value.trim();
+    if (!val) return;
+    if (state.grados.some(function(g){ return g.toLowerCase() === val.toLowerCase(); })){
+      input.value = ""; return;
+    }
+    state.grados.push(val);
+    saveGrados();
+    input.value = "";
+    renderManageLists();
+    renderGradoSeccionSelects();
+    gradoSelect.value = val;
+  });
+
+  document.getElementById("form-add-seccion").addEventListener("submit", function(e){
+    e.preventDefault();
+    var input = document.getElementById("in-new-seccion");
+    var val = input.value.trim();
+    if (!val) return;
+    if (state.secciones.some(function(s){ return s.toLowerCase() === val.toLowerCase(); })){
+      input.value = ""; return;
+    }
+    state.secciones.push(val);
+    saveSecciones();
+    input.value = "";
+    renderManageLists();
+    renderGradoSeccionSelects();
+    seccionSelect.value = val;
+  });
+
+  listGradosEl.addEventListener("click", function(e){
+    var g = e.target.getAttribute("data-rm-grado");
+    if (!g) return;
+    if (state.students.some(function(s){ return s.grado === g; })){
+      showToast('No puedes quitar "' + g + '": todavía hay estudiantes en ese grado.', "warn");
+      return;
+    }
+    state.grados = state.grados.filter(function(x){ return x !== g; });
+    saveGrados();
+    renderManageLists();
+    renderGradoSeccionSelects();
+    renderFilterOptions();
+  });
+
+  listSeccionesEl.addEventListener("click", function(e){
+    var s = e.target.getAttribute("data-rm-seccion");
+    if (!s) return;
+    if (state.students.some(function(st){ return st.seccion === s; })){
+      showToast('No puedes quitar "' + s + '": todavía hay estudiantes en esa sección.', "warn");
+      return;
+    }
+    state.secciones = state.secciones.filter(function(x){ return x !== s; });
+    saveSecciones();
+    renderManageLists();
+    renderGradoSeccionSelects();
+    renderFilterOptions();
+  });
+
+  function renderFilterOptions(){
+    var current = filterGrado.value;
+    var combos = state.grados.slice();
+    filterGrado.innerHTML = '<option value="">Todos los grados</option>';
+    combos.forEach(function(g){
+      var opt = document.createElement("option");
+      opt.value = g; opt.textContent = g;
+      filterGrado.appendChild(opt);
+    });
+    if (combos.indexOf(current) !== -1) filterGrado.value = current;
+  }
+  filterGrado.addEventListener("change", renderStudents);
+
+  function makeQrDataUrl(code, cb){
+    if (qrCache[code]) { cb(qrCache[code]); return; }
+    var holder = document.createElement("div");
+    holder.style.position = "absolute";
+    holder.style.left = "-9999px";
+    document.body.appendChild(holder);
+    new QRCode(holder, { text: code, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.M });
+    setTimeout(function(){
+      var img = holder.querySelector("img");
+      var canvas = holder.querySelector("canvas");
+      var url = img && img.src ? img.src : (canvas ? canvas.toDataURL("image/png") : "");
+      qrCache[code] = url;
+      document.body.removeChild(holder);
+      cb(url);
+    }, 60);
+  }
+
+  function displayGrade(st){
+    if (st.grado) return st.grado + (st.seccion ? " · " + st.seccion : "");
+    return st.grade || "—"; // compatibilidad con datos guardados por una versión anterior
+  }
+
+  function renderStudents(){
+    var filterVal = filterGrado.value;
+    var list = filterVal ? state.students.filter(function(s){ return s.grado === filterVal; }) : state.students;
+
+    if (state.students.length === 0){
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Aún no agregas estudiantes. Usa el formulario de arriba.</td></tr>';
+      studentCount.textContent = "0 estudiantes registrados";
+      return;
+    }
+    if (list.length === 0){
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Ningún estudiante en ese grado todavía.</td></tr>';
+    } else {
+      tbody.innerHTML = "";
+      list.forEach(function(st){
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          '<td><img class="qr-thumb" alt="QR de ' + escapeHtml(st.name) + '"></td>' +
+          '<td>' + escapeHtml(st.name) + '</td>' +
+          '<td>' + escapeHtml(displayGrade(st)) + '</td>' +
+          '<td><span class="code">' + st.code + '</span></td>' +
+          '<td><button class="icon-btn" data-del="' + st.id + '" title="Eliminar">Eliminar</button></td>';
+        tbody.appendChild(tr);
+        var img = tr.querySelector("img");
+        makeQrDataUrl(st.code, function(url){ img.src = url; });
+      });
+    }
+    studentCount.textContent = state.students.length + (state.students.length === 1 ? " estudiante registrado" : " estudiantes registrados") +
+      (filterVal ? " (mostrando " + list.length + ")" : "");
+  }
+
+  document.getElementById("form-add-student").addEventListener("submit", function(e){
+    e.preventDefault();
+    var name = document.getElementById("in-name").value.trim();
+    var grado = gradoSelect.value;
+    var seccion = seccionSelect.value;
+    if (!name || !grado || !seccion) return;
+    state.students.push({
+      id: "id" + Date.now() + Math.random().toString(36).slice(2,7),
+      name: name, grado: grado, seccion: seccion, code: genCode()
+    });
+    saveStudents();
+    document.getElementById("in-name").value = "";
+    document.getElementById("in-name").focus();
+    renderStudents();
+    renderFilterOptions();
+    renderRegistro();
+  });
+
+  tbody.addEventListener("click", function(e){
+    var btn = e.target.closest ? e.target.closest("button[data-del]") : null;
+    if (!btn) return;
+    var id = btn.getAttribute("data-del");
+    if (btn.dataset.armed === "1"){
+      state.students = state.students.filter(function(s){ return s.id !== id; });
+      state.records = state.records.filter(function(r){ return r.studentId !== id; });
+      saveStudents(); saveRecords();
+      showToast("Estudiante eliminado.");
+      renderStudents(); renderRegistro(); renderFilterOptions();
+      pendingDeleteBtn = null;
+      return;
+    }
+    if (pendingDeleteBtn && pendingDeleteBtn !== btn) resetDeleteBtn(pendingDeleteBtn);
+    btn.dataset.armed = "1";
+    btn.textContent = "Confirmar";
+    btn.classList.add("confirm-pending");
+    pendingDeleteBtn = btn;
+    clearTimeout(btn._resetTimer);
+    btn._resetTimer = setTimeout(function(){ resetDeleteBtn(btn); }, 4000);
+  });
+  var pendingDeleteBtn = null;
+  function resetDeleteBtn(btn){
+    if (!btn) return;
+    btn.dataset.armed = "0";
+    btn.textContent = "Eliminar";
+    btn.classList.remove("confirm-pending");
+    if (pendingDeleteBtn === btn) pendingDeleteBtn = null;
+  }
+
+  var printOverlay = document.getElementById("print-overlay");
+  document.getElementById("btn-close-print").addEventListener("click", function(){
+    printOverlay.hidden = true;
+  });
+
+  document.getElementById("btn-print-all").addEventListener("click", function(){
+    if (state.students.length === 0){ showToast("Agrega al menos un estudiante primero.", "warn"); return; }
+    var sheet = document.getElementById("print-sheet");
+    sheet.innerHTML = "";
+    var pending = state.students.length;
+    state.students.forEach(function(st){
+      makeQrDataUrl(st.code, function(url){
+        var div = document.createElement("div");
+        div.className = "card-print";
+        div.innerHTML = '<img src="' + url + '"><div class="nm">' + escapeHtml(st.name) + '</div><div class="cd">' + escapeHtml(displayGrade(st)) + ' · ' + st.code + '</div>';
+        sheet.appendChild(div);
+        pending--;
+        if (pending === 0){
+          printOverlay.hidden = false;
+          try { window.print(); } catch(e){ /* el usuario imprime manualmente con Ctrl+P / Cmd+P */ }
+        }
+      });
+    });
+  });
+
+  /* ---------- Escanear ---------- */
+  var video = document.getElementById("video");
+  var camMsg = document.getElementById("cam-msg");
+  var camMsgText = document.getElementById("cam-msg-text");
+  var btnActivarCamara = document.getElementById("btn-activar-camara");
+  var btnSwitchCamera = document.getElementById("btn-switch-camera");
+  var flashEl = document.getElementById("flash");
+  var scanStatus = document.getElementById("scan-status");
+  var recentTbody = document.getElementById("recent-tbody");
+  var cutoffInput = document.getElementById("in-cutoff");
+  var dateScanInput = document.getElementById("in-date-scan");
+  dateScanInput.value = todayStr();
+
+  var stream = null, scanLoopId = null, lastScanAt = 0;
+  var cameraEverGranted = false;
+  var currentFacingMode = "environment";
+  var scanCanvas = document.createElement("canvas");
+  var scanCtx = scanCanvas.getContext("2d", { willReadFrequently: true });
+
+  function setStatus(msg, kind){
+    scanStatus.textContent = msg;
+    scanStatus.className = "status-banner" + (kind ? " " + kind : "");
+  }
+
+  function enterScanTab(){
+    if (cameraEverGranted) startCamera();
+  }
+
+  function cameraErrorMessage(err){
+    var name = err && err.name ? err.name : "";
+    if (!window.isSecureContext){
+      return "Tu navegador exige una conexión segura (https) para usar la cámara. Abre este enlace con https:// o desde la app de Claude.";
+    }
+    if (name === "NotAllowedError" || name === "PermissionDeniedError"){
+      return "Denegaste el permiso de cámara (o el navegador la bloqueó). Revisa el ícono de candado/cámara junto a la barra de direcciones y permite el acceso, luego pulsa \"Activar cámara\" otra vez.";
+    }
+    if (name === "NotFoundError" || name === "DevicesNotFoundError"){
+      return "No se encontró ninguna cámara en este dispositivo.";
+    }
+    if (name === "NotReadableError" || name === "TrackStartError"){
+      return "La cámara está siendo usada por otra aplicación o pestaña. Ciérrala e inténtalo de nuevo.";
+    }
+    if (name === "OverconstrainedError" || name === "ConstraintNotSatisfiedError"){
+      return "No se pudo usar la cámara trasera. Prueba con \"Cambiar de cámara\".";
+    }
+    if (name === "SecurityError"){
+      return "El navegador bloqueó el acceso a la cámara en esta vista. Abre el enlace del artefacto en una pestaña propia e inténtalo de nuevo.";
+    }
+    return "No se pudo acceder a la cámara aquí. Puedes usar el código manual mientras tanto.";
+  }
+
+  function showActivateUI(message){
+    camMsg.style.display = "flex";
+    btnActivarCamara.style.display = "inline-block";
+    btnActivarCamara.disabled = false;
+    btnActivarCamara.textContent = cameraEverGranted ? "Reintentar" : "Activar cámara";
+    camMsgText.textContent = message || "";
+    btnSwitchCamera.style.display = "none";
+  }
+
+  function startCamera(){
+    if (stream) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      showActivateUI("Este navegador no permite acceso a la cámara aquí. Usa el código manual.");
+      return;
+    }
+    btnActivarCamara.disabled = true;
+    btnActivarCamara.textContent = "Solicitando acceso…";
+    camMsgText.textContent = "";
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } })
+      .then(function(s){
+        stream = s;
+        cameraEverGranted = true;
+        video.srcObject = s;
+        video.play();
+        camMsg.style.display = "none";
+        btnSwitchCamera.style.display = "inline-block";
+        scanLoop();
+      })
+      .catch(function(err){
+        showActivateUI(cameraErrorMessage(err));
+      });
+  }
+  function stopCamera(){
+    if (scanLoopId) cancelAnimationFrame(scanLoopId);
+    scanLoopId = null;
+    if (stream){ stream.getTracks().forEach(function(t){ t.stop(); }); stream = null; }
+  }
+
+  btnActivarCamara.addEventListener("click", startCamera);
+  btnSwitchCamera.addEventListener("click", function(){
+    currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+    stopCamera();
+    startCamera();
+  });
+
+  function scanLoop(){
+    scanLoopId = requestAnimationFrame(scanLoop);
+    if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+    scanCanvas.width = video.videoWidth;
+    scanCanvas.height = video.videoHeight;
+    scanCtx.drawImage(video, 0, 0, scanCanvas.width, scanCanvas.height);
+    var imgData;
+    try { imgData = scanCtx.getImageData(0, 0, scanCanvas.width, scanCanvas.height); }
+    catch(e){ return; }
+    var code = jsQR(imgData.data, imgData.width, imgData.height);
+    if (code && code.data){
+      var now = Date.now();
+      if (now - lastScanAt > 1500){
+        lastScanAt = now;
+        handleScannedCode(code.data);
+      }
+    }
+  }
+
+  function flashOnce(){
+    flashEl.classList.add("on");
+    setTimeout(function(){ flashEl.classList.remove("on"); }, 180);
+  }
+
+  function handleScannedCode(rawCode){
+    var code = String(rawCode).trim();
+    var student = state.students.find(function(s){ return s.code === code; });
+    if (!student){
+      setStatus("Código no reconocido: " + code, "err");
+      return;
+    }
+    registerAttendance(student);
+  }
+
+  function registerAttendance(student){
+    var date = dateScanInput.value || todayStr();
+    var already = state.records.find(function(r){ return r.studentId === student.id && r.date === date; });
+    if (already){
+      setStatus(student.name + " ya fue registrado hoy a las " + already.time + " (" + already.status + ").", "warn");
+      return;
+    }
+    var cutoff = cutoffInput.value || "08:00";
+    var now = timeStr();
+    var status = now > cutoff ? "tardanza" : "presente";
+    state.records.push({ studentId: student.id, date: date, time: now, status: status });
+    saveRecords();
+    flashOnce();
+    setStatus((status === "tardanza" ? "⏰ Tardanza: " : "✅ Presente: ") + student.name + " — " + displayGrade(student), status === "tardanza" ? "warn" : "ok");
+    renderRecent();
+    renderRegistro();
+  }
+
+  document.getElementById("form-manual").addEventListener("submit", function(e){
+    e.preventDefault();
+    var input = document.getElementById("in-manual");
+    var code = input.value.trim().toUpperCase();
+    if (!code) return;
+    handleScannedCode(code);
+    input.value = "";
+    input.focus();
+  });
+
+  function renderRecent(){
+    var date = dateScanInput.value || todayStr();
+    var todays = state.records.filter(function(r){ return r.date === date; }).slice().reverse().slice(0, 8);
+    if (todays.length === 0){
+      recentTbody.innerHTML = '<tr class="empty-row"><td colspan="3">Sin registros todavía.</td></tr>';
+      return;
+    }
+    recentTbody.innerHTML = "";
+    todays.forEach(function(r){
+      var st = state.students.find(function(s){ return s.id === r.studentId; });
+      var tr = document.createElement("tr");
+      tr.innerHTML = '<td>' + r.time + '</td><td>' + escapeHtml(st ? st.name : "—") + '</td>' +
+        '<td><span class="tag ' + r.status + '">' + (r.status === "tardanza" ? "Tardanza" : "Presente") + '</span></td>';
+      recentTbody.appendChild(tr);
+    });
+  }
+  dateScanInput.addEventListener("change", renderRecent);
+
+  /* ---------- Registro ---------- */
+  var dateViewInput = document.getElementById("in-date-view");
+  dateViewInput.value = todayStr();
+  var registroTbody = document.getElementById("registro-tbody");
+
+  function renderRegistro(){
+    var date = dateViewInput.value || todayStr();
+    var presentes=0, tardanzas=0, faltas=0;
+    if (state.students.length === 0){
+      registroTbody.innerHTML = '<tr class="empty-row"><td colspan="4">No hay estudiantes registrados.</td></tr>';
+      document.getElementById("stat-presente").textContent = 0;
+      document.getElementById("stat-tardanza").textContent = 0;
+      document.getElementById("stat-falta").textContent = 0;
+      return;
+    }
+    registroTbody.innerHTML = "";
+    state.students.forEach(function(st){
+      var rec = state.records.find(function(r){ return r.studentId === st.id && r.date === date; });
+      var status = rec ? rec.status : "falta";
+      if (status === "presente") presentes++; else if (status === "tardanza") tardanzas++; else faltas++;
+      var label = status === "presente" ? "Presente" : status === "tardanza" ? "Tardanza" : "Falta";
+      var tr = document.createElement("tr");
+      tr.innerHTML = '<td>' + escapeHtml(st.name) + '</td><td>' + escapeHtml(displayGrade(st)) + '</td>' +
+        '<td><span class="tag ' + status + '">' + label + '</span></td>' +
+        '<td>' + (rec ? rec.time : "—") + '</td>';
+      registroTbody.appendChild(tr);
+    });
+    document.getElementById("stat-presente").textContent = presentes;
+    document.getElementById("stat-tardanza").textContent = tardanzas;
+    document.getElementById("stat-falta").textContent = faltas;
+  }
+  dateViewInput.addEventListener("change", renderRegistro);
+
+  document.getElementById("btn-export").addEventListener("click", function(){
+    var date = dateViewInput.value || todayStr();
+    var rows = [["Nombre","Grado","Estado","Hora","Fecha"]];
+    state.students.forEach(function(st){
+      var rec = state.records.find(function(r){ return r.studentId === st.id && r.date === date; });
+      var status = rec ? rec.status : "falta";
+      rows.push([st.name, displayGrade(st), status, rec ? rec.time : "", date]);
+    });
+    var csv = rows.map(function(r){
+      return r.map(function(cell){
+        var s = String(cell).replace(/"/g,'""');
+        return /[",\n]/.test(s) ? '"' + s + '"' : s;
+      }).join(",");
+    }).join("\n");
+
+    tryDownload("asistencia_" + date + ".csv", csv);
+  });
+
+  function tryDownload(filename, csvText){
+    // Prefer the platform downloads capability if available; otherwise fall back
+    // to a plain browser download link (works when the page runs standalone).
+    if (window.claude && typeof window.claude.use === "function"){
+      window.claude.use("downloads").then(function(downloads){
+        if (downloads && downloads.save){
+          downloads.save({ filename: filename, data: csvText }).catch(function(){ fallbackDownload(filename, csvText); });
+        } else {
+          fallbackDownload(filename, csvText);
+        }
+      }).catch(function(){ fallbackDownload(filename, csvText); });
+    } else {
+      fallbackDownload(filename, csvText);
+    }
+  }
+  function fallbackDownload(filename, csvText){
+    try {
+      var blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch(e){ showToast("No se pudo descargar el archivo en esta vista.", "err"); }
+  }
+
+  /* ---------- init ---------- */
+  renderGradoSeccionSelects();
+  renderManageLists();
+  renderFilterOptions();
+  renderStudents();
+  renderRecent();
+  renderRegistro();
+})();
+</script>
+</body>
+</html>
